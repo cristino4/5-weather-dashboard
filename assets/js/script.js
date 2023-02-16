@@ -4,7 +4,7 @@ var lon = "-117.3528";
 var cityName = "london";
 var limit = 10;
 var currentWeather;
-const coor = [lat,lon]
+var coor = [lat,lon]
 var fiveDayForecast;
 
 currentCityEl = $("#current-city");
@@ -19,7 +19,7 @@ $("#search-button").click(search)
 
 init()
 async function init(){
-   
+    
     //location coordinates are stored as global var
     weatherData = await pollWeather(coor)
     forecastData = await pollForecast(coor)
@@ -30,7 +30,9 @@ async function init(){
 
 }
 
-async function search(){
+async function search(event){
+    log("EVENT: ")
+    log(event)
     term =$("#search-bar")[0].value;
     
     if (term === ""){
@@ -45,6 +47,16 @@ async function search(){
     }
     displayResults(searchRes)
 
+}
+
+async function applySelection(event){
+    log("EVENT: ")
+    log(event)
+    lat = event.target.attributes.getNamedItem("data-lattitude").value;
+    lon = event.target.attributes.getNamedItem("data-longitude").value;
+    coor = [lat,lon]
+    init()
+    
 }
 
 function parseLocations(loc){
@@ -73,25 +85,22 @@ async function pollLocations(term){
 }
 
 function displayResults(results) {
-    
+    //results [cities,states,countries,coor]
+    $("#search-results button").remove();
+    resultsContainerEl = $("#search-results")
+    for (i = 0; i<results[0].length; i++){
+        resultEl = $("<button>")
+        resultEl.addClass("btn")
+        resultEl.attr("id")
+        resultEl.text(`${results[0][i]}, ${results[1][i]}, ${results[2][i]}`)
+        resultEl.attr("data-lattitude",results[3][i][0])
+        resultEl.attr("data-longitude",results[3][i][1])
+        resultEl.click(applySelection)
+        resultsContainerEl.append(resultEl)
+    }
 
 }
 
-// async function pollLocation(){
-
-//     return new Promise(function(resolve, reject) {
-//         navigator.geolocation.getCurrentPosition(locationFound,locationError);
-//       });
-
-
-// }
-
-// function resolve(){
-//     log("resolve")
-// }
-// function reject(){
-//     log("reject")
-// }
 function locationFound(pos){
     const crd = pos.coords;
     log('Current Position:');
@@ -110,7 +119,7 @@ function locationError(){
 
 async function pollWeather(coor){
     log(`Obtaining weather data for lattitude: ${coor[0]} longitude: ${coor[1]}`)
-    weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${coor[0]}&lon=${coor[1]}&appid=${apiKey}`
+    weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${coor[0]}&lon=${coor[1]}&appid=${apiKey}&units=imperial`
     const response = await fetch(weatherUrl)
     res = response.json()
     log("Data:")
@@ -121,7 +130,7 @@ async function pollWeather(coor){
 
 async function pollForecast(coor){
     log(`Obtaining forecast data for lattitude: ${coor[0]} longitude: ${coor[1]}`)
-    weatherUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${coor[0]}&lon=${coor[1]}&appid=${apiKey}`
+    weatherUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${coor[0]}&lon=${coor[1]}&appid=${apiKey}&units=imperial&exclude=hourly,daily`
     const response = await fetch(weatherUrl)
     res = response.json()
     log("Data:")
@@ -133,18 +142,19 @@ function parseForecast(data){
     //day = [date,temp,wind,humidity,icon,description]
     var forecast;
     day1 = [data.list[0].dt_txt,data.list[0].main.temp,data.list[0].wind.speed,data.list[0].main.humidity,data.list[0].weather[0].icon,data.list[0].weather[0].description]
-    day2 = [data.list[1].dt_txt,data.list[1].main.temp,data.list[1].wind.speed,data.list[1].main.humidity,data.list[1].weather[0].icon,data.list[1].weather[0].description] 
-    day3 = [data.list[2].dt_txt,data.list[2].main.temp,data.list[2].wind.speed,data.list[2].main.humidity,data.list[2].weather[0].icon,data.list[2].weather[0].description] 
-    day4 = [data.list[3].dt_txt,data.list[3].main.temp,data.list[3].wind.speed,data.list[3].main.humidity,data.list[3].weather[0].icon,data.list[3].weather[0].description] 
-    day5 = [data.list[4].dt_txt,data.list[4].main.temp,data.list[4].wind.speed,data.list[4].main.humidity,data.list[4].weather[0].icon,data.list[4].weather[0].description]  
+    day2 = [data.list[8].dt_txt,data.list[1].main.temp,data.list[1].wind.speed,data.list[1].main.humidity,data.list[1].weather[0].icon,data.list[1].weather[0].description] 
+    day3 = [data.list[16].dt_txt,data.list[2].main.temp,data.list[2].wind.speed,data.list[2].main.humidity,data.list[2].weather[0].icon,data.list[2].weather[0].description] 
+    day4 = [data.list[24].dt_txt,data.list[3].main.temp,data.list[3].wind.speed,data.list[3].main.humidity,data.list[3].weather[0].icon,data.list[3].weather[0].description] 
+    day5 = [data.list[32].dt_txt,data.list[4].main.temp,data.list[4].wind.speed,data.list[4].main.humidity,data.list[4].weather[0].icon,data.list[4].weather[0].description]  
     forecast = [day1,day2,day3,day4,day5]
+    
     log(`Parsing 5 day forcast:`)
     log(`Day 1: ${day1} `)
     log(`Day 2: ${day2} `)
     log(`Day 3: ${day3} `)
     log(`Day 4: ${day4} `)
     log(`Day 5: ${day5} `)
-    
+
     return forecast
 
 }
@@ -166,9 +176,9 @@ function displayForecast(current,forecast){
     currentCityEl.text(`${current[1]}, ${current[0]}`)
     currentIconEl.attr("style", `background-image: url(http://openweathermap.org/img/wn/${current[5]}.png)`);
     currentDescriptionEl.text(current[6]);
-    currentHumidityEl.text(`Humidity: ${current[2]}`);
-    currentTempEl.text(`Temperature: ${current[3]}`);
-    currentWindEl.text(`Wind: ${current[4]}`);
+    currentHumidityEl.text(`Humidity: ${current[2]} %`);
+    currentTempEl.text(`Temperature: ${current[3]} \u00B0F`);
+    currentWindEl.text(`Wind: ${current[4]} mph`);
 
     //display forecast
     //icon update
@@ -193,7 +203,7 @@ function displayForecast(current,forecast){
         desc.push($(`#d${i+1}-temp`));
     }
     for (i=0; i<5;i++){
-        desc[i].text(forecast[i][1]);
+        desc[i].text(`${forecast[i][1]} \u00B0F`);
     }
     //wind update
     var desc = []
@@ -201,7 +211,7 @@ function displayForecast(current,forecast){
         desc.push($(`#d${i+1}-wind`));
     }
     for (i=0; i<5;i++){
-        desc[i].text(forecast[i][2]);
+        desc[i].text(`${forecast[i][2]} mph`);
     }
     //humidity update
     var desc = []
@@ -209,7 +219,7 @@ function displayForecast(current,forecast){
         desc.push($(`#d${i+1}-humid`));
     }
     for (i=0; i<5;i++){
-        desc[i].text(forecast[i][3]);
+        desc[i].text(`${forecast[i][3]} %`);
     }
     //dateupdate
     var desc = []
@@ -217,11 +227,21 @@ function displayForecast(current,forecast){
         desc.push($(`#d${i+1}-date`));
     }
     for (i=0; i<5;i++){
-        desc[i].text(forecast[i][0]);
+        dates = parseDate(forecast[i][0])
+        desc[i].text(`${dates[0]} ${dates[1]} ${dates[2]}`);
     }
     
 }
 
+function parseDate(date) {
+    var response = [];
+    //date format 2023-02-19 03:00:00
+    dateArr = dayjs(date).$d.toString().split(" ")
+    var dayWeek = dateArr[0];
+    var month = dateArr[1];
+    var day = dateArr[2];
+    return response = [dayWeek,month,day];
+}
 
 // // locationUrl = `http://api.openweathermap.org/geo/1.0/direct?q=${cityName}&limit=${limit}&appid=${apiKey}`
 // // weatherUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}`
@@ -248,3 +268,5 @@ function displayForecast(current,forecast){
 function log(mesg){
     console.log(mesg)
 }
+
+
