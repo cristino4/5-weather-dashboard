@@ -15,6 +15,12 @@ currentWindEl = $("#current-wind");
 currentHumidityEl = $("#current-humidity");
 searchHistoryEl = $("#search-history")
 
+$("#clear-history-button").click(function(){{
+    localStorage.removeItem("searchHistory")
+    searchHistoryEl.empty()
+    titleItemEl = $("<option>").text("Search History")
+    searchHistoryEl.append(titleItemEl)
+}})
 $("#search-button").click(search)
 $("#search-history").change(function(event){
     $("#search-results button").remove();
@@ -46,7 +52,6 @@ async function init(){
 function updateSearchHistory(){
     searchHistoryEl.empty()
     if(localStorage.getItem("searchHistory") != null){
-        
         titleItemEl = $("<option>").text("Search History")
         searchHistoryEl.append(titleItemEl)
         mem = JSON.parse(localStorage.getItem("searchHistory"));
@@ -59,7 +64,11 @@ function updateSearchHistory(){
             histItem.attr("data-name",mem[i].city)
             histItem.attr("data-state",mem[i].state)
             histItem.attr("data-country",mem[i].country)
-        }
+        } 
+    } else {
+        searchHistoryEl.empty()
+        titleItemEl = $("<option>").text("Search History")
+        searchHistoryEl.append(titleItemEl)
     }
 }
 
