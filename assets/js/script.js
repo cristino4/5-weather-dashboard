@@ -45,20 +45,22 @@ async function init(){
 //displays seach history on drop down menu
 function updateSearchHistory(){
     searchHistoryEl.empty()
-    titleItemEl = $("<option>").text("Search History")
-    searchHistoryEl.append(titleItemEl)
-    mem = JSON.parse(localStorage.getItem("searchHistory"));
-    for(let i = 0; i < mem.length;i++){
-        histItem = $("<option>")
-        histItem.text(`${mem[i].city}, ${mem[i].state}, ${mem[i].country}`)
-        searchHistoryEl.append(histItem)
-        histItem.attr("data-lattitude",mem[i].lattitude)
-        histItem.attr("data-longitude",mem[i].longitude)
-        histItem.attr("data-name",mem[i].city)
-        histItem.attr("data-state",mem[i].state)
-        histItem.attr("data-country",mem[i].country)
+    if(localStorage.getItem("searchHistory") != null){
+        
+        titleItemEl = $("<option>").text("Search History")
+        searchHistoryEl.append(titleItemEl)
+        mem = JSON.parse(localStorage.getItem("searchHistory"));
+        for(let i = 0; i < mem.length;i++){
+            histItem = $("<option>")
+            histItem.text(`${mem[i].city}, ${mem[i].state}, ${mem[i].country}`)
+            searchHistoryEl.append(histItem)
+            histItem.attr("data-lattitude",mem[i].lattitude)
+            histItem.attr("data-longitude",mem[i].longitude)
+            histItem.attr("data-name",mem[i].city)
+            histItem.attr("data-state",mem[i].state)
+            histItem.attr("data-country",mem[i].country)
+        }
     }
-
 }
 
 async function search(event){
