@@ -50,9 +50,8 @@ async function init(){
 
 //displays seach history on drop down menu
 function updateSearchHistory(){
-    
+    searchHistoryEl.empty()
     if(localStorage.getItem("searchHistory") != null){
-        searchHistoryEl.empty()
         titleItemEl = $("<option>").text("Search History")
         searchHistoryEl.append(titleItemEl)
         mem = JSON.parse(localStorage.getItem("searchHistory"));
