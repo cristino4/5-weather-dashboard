@@ -15,6 +15,12 @@ currentWindEl = $("#current-wind");
 currentHumidityEl = $("#current-humidity");
 searchHistoryEl = $("#search-history")
 
+$("#clear-history-button").click(function(){{
+    localStorage.removeItem("searchHistory")
+    searchHistoryEl.empty()
+    titleItemEl = $("<option>").text("Search History")
+    searchHistoryEl.append(titleItemEl)
+}})
 $("#search-button").click(search)
 $("#search-history").change(function(event){
     $("#search-results button").remove();
@@ -44,21 +50,27 @@ async function init(){
 
 //displays seach history on drop down menu
 function updateSearchHistory(){
-    searchHistoryEl.empty()
-    titleItemEl = $("<option>").text("Search History")
-    searchHistoryEl.append(titleItemEl)
-    mem = JSON.parse(localStorage.getItem("searchHistory"));
-    for(let i = 0; i < mem.length;i++){
-        histItem = $("<option>")
-        histItem.text(`${mem[i].city}, ${mem[i].state}, ${mem[i].country}`)
-        searchHistoryEl.append(histItem)
-        histItem.attr("data-lattitude",mem[i].lattitude)
-        histItem.attr("data-longitude",mem[i].longitude)
-        histItem.attr("data-name",mem[i].city)
-        histItem.attr("data-state",mem[i].state)
-        histItem.attr("data-country",mem[i].country)
+    
+    if(localStorage.getItem("searchHistory") != null){
+        searchHistoryEl.empty()
+        titleItemEl = $("<option>").text("Search History")
+        searchHistoryEl.append(titleItemEl)
+        mem = JSON.parse(localStorage.getItem("searchHistory"));
+        for(let i = 0; i < mem.length;i++){
+            histItem = $("<option>")
+            histItem.text(`${mem[i].city}, ${mem[i].state}, ${mem[i].country}`)
+            searchHistoryEl.append(histItem)
+            histItem.attr("data-lattitude",mem[i].lattitude)
+            histItem.attr("data-longitude",mem[i].longitude)
+            histItem.attr("data-name",mem[i].city)
+            histItem.attr("data-state",mem[i].state)
+            histItem.attr("data-country",mem[i].country)
+        } 
+    } else {
+        searchHistoryEl.empty()
+        titleItemEl = $("<option>").text("Search History")
+        searchHistoryEl.append(titleItemEl)
     }
-
 }
 
 async function search(event){
