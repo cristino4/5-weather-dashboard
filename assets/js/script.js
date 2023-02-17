@@ -13,20 +13,51 @@ currentDescriptionEl = $("#current-description");
 currentTempEl = $("#current-temp");
 currentWindEl = $("#current-wind");
 currentHumidityEl = $("#current-humidity");
+searchHistoryEl = $("#search-history")
 
 $("#search-button").click(search)
-
+$("#search-history").change(function(event){
+    $("#search-results button").remove();
+    el = $(this).find(":selected")
+    log(el)
+    lat = el.data("lattitude")
+    lon = el.data("longitude")
+    coor = [lat,lon]
+    searchText = `${el.data("name")}, ${el.data("state")}, ${el.data("country")}`
+    $("#search-bar")[0].value = searchText;
+    init()
+})
 
 init()
+
 async function init(){
-    
+
     //location coordinates are stored as global var
     weatherData = await pollWeather(coor)
     forecastData = await pollForecast(coor)
     fiveDayForecast = parseForecast(forecastData)
     currentWeather = parseCurrentWeather(weatherData)
     displayForecast(currentWeather,fiveDayForecast)
+    updateSearchHistory()
 
+}
+
+//displays seach history on drop down menu
+function updateSearchHistory(){
+    searchHistoryEl.empty()
+    titleItemEl = $("<option>").text("Search History")
+    searchHistoryEl.append(titleItemEl)
+    mem = JSON.parse(localStorage.getItem("searchHistory"));
+    for(let i = 0; i < mem.length;i++){
+        histItem = $("<option>")
+        histItem.text(`${mem[i].city}, ${mem[i].state}, ${mem[i].country}`)
+        searchHistoryEl.append(histItem)
+        histItem.attr("data-lattitude",mem[i].lattitude)
+        histItem.attr("data-longitude",mem[i].longitude)
+        histItem.attr("data-name",mem[i].city)
+        histItem.attr("data-state",mem[i].state)
+        histItem.attr("data-country",mem[i].country)
+    }
 
 }
 
@@ -48,13 +79,41 @@ async function search(event){
     displayResults(searchRes)
 
 }
-
 async function applySelection(event){
     log("EVENT: ")
     log(event)
     lat = event.target.attributes.getNamedItem("data-lattitude").value;
     lon = event.target.attributes.getNamedItem("data-longitude").value;
+    var city = event.target.attributes.getNamedItem("data-name").value;
+    var state = event.target.attributes.getNamedItem("data-state").value;
+    var country = event.target.attributes.getNamedItem("data-country").value;
     coor = [lat,lon]
+
+    if(localStorage.getItem("searchHistory") != null){
+        const storageEntry = new Object()
+        storageEntry.lattitude = lat;
+        storageEntry.longitude = lon;
+        storageEntry.city = city;
+        storageEntry.state = state;
+        storageEntry.country = country;
+        mem = JSON.parse(localStorage.getItem("searchHistory"))
+        mem.push(storageEntry)
+        //save search to local storage (search history)
+        localStorage.setItem(`searchHistory`,JSON.stringify(mem))
+    } else {
+        const storageEntry = new Object()
+        storageEntry.lattitude = lat;
+        storageEntry.longitude = lon;
+        storageEntry.city = city;
+        storageEntry.state = state;
+        storageEntry.country = country;
+        mem = []
+        mem.push(storageEntry)
+        //save search to local storage (search history)
+        localStorage.setItem(`searchHistory`,JSON.stringify(mem))
+    }
+
+
     init()
     
 }
@@ -91,10 +150,12 @@ function displayResults(results) {
     for (i = 0; i<results[0].length; i++){
         resultEl = $("<button>")
         resultEl.addClass("btn")
-        resultEl.attr("id")
         resultEl.text(`${results[0][i]}, ${results[1][i]}, ${results[2][i]}`)
         resultEl.attr("data-lattitude",results[3][i][0])
         resultEl.attr("data-longitude",results[3][i][1])
+        resultEl.attr("data-name",results[0][i])
+        resultEl.attr("data-state",results[1][i])
+        resultEl.attr("data-country",results[2][i])
         resultEl.click(applySelection)
         resultsContainerEl.append(resultEl)
     }
@@ -162,17 +223,20 @@ function parseForecast(data){
 function parseCurrentWeather(data){
     var country = data.sys.country;
     var city = data.name;
+    // var state = data.state
     var humidity = data.main.humidity;
     var temp = data.main.temp;
     var win = data.wind.speed;
     var iconID = data.weather[0].icon;
     var description = data.weather[0].description
     log(`Parsing Weather: City ${city}, Country ${country}, Humidity ${humidity}, Temperature ${temp}, Wind ${win}, iconID ${iconID}`)
+    // return [country,city,humidity,temp,win,iconID,description,state]
     return [country,city,humidity,temp,win,iconID,description]
 }
 
 function displayForecast(current,forecast){
     //display current weather
+    // currentCityEl.text(`${current[1]}, ${current[7]}, ${current[0]}`)
     currentCityEl.text(`${current[1]}, ${current[0]}`)
     currentIconEl.attr("style", `background-image: url(http://openweathermap.org/img/wn/${current[5]}.png)`);
     currentDescriptionEl.text(current[6]);
