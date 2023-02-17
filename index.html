@@ -22,13 +22,19 @@
     <main class="d-flex flex-row flex-wrap mx-auto">
       <div class="card d-flex flex-column">
         <div class="card-body">
-          <label for="search-bar" class="form-label">Search by City</label>
             <form class="d-flex mb-2" role="search">
+              <label for="search-bar" class="form-label">Search by City</label>
               <input class="form-control me-2" id="search-bar" type="search" placeholder="Search" aria-label="Search">
               <button class="btn btn-outline-success" type="button" id="search-button">Search</button>
             </form>
-          <div id="search-results" class="d-flex flex-column">
-            <p>Search Results</p>
+            <select id="search-history" class="form-select">
+              <option selected>Search History</option>
+            </select>
+            <div id="search-results-container" class="d-flex flex-column">
+              <p>Search Results</p>
+            <div id="search-results" class="d-flex flex-column">
+
+            </div>
           </div>
         </div>
       </div>
