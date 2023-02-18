@@ -158,16 +158,21 @@ async function pollLocations(term){
 function displayResults(results) {
     //results [cities,states,countries,coor]
     $("#search-results button").remove();
+    $("#search-results p").remove();
     resultsContainerEl = $("#search-results")
+    titleEl = $("<p>")
+    titleEl.text("Search Results:")
+    resultsContainerEl.append(titleEl)
     for (i = 0; i<results[0].length; i++){
         resultEl = $("<button>")
-        resultEl.addClass("btn")
+        resultEl.addClass("btn btn-outline-primary my-2")
         resultEl.text(`${results[0][i]}, ${results[1][i]}, ${results[2][i]}`)
         resultEl.attr("data-lattitude",results[3][i][0])
         resultEl.attr("data-longitude",results[3][i][1])
         resultEl.attr("data-name",results[0][i])
         resultEl.attr("data-state",results[1][i])
         resultEl.attr("data-country",results[2][i])
+        resultEl.attr("type","button")
         resultEl.click(applySelection)
         resultsContainerEl.append(resultEl)
     }
@@ -250,7 +255,8 @@ function displayForecast(current,forecast){
     //display current weather
     // currentCityEl.text(`${current[1]}, ${current[7]}, ${current[0]}`)
     currentCityEl.text(`${current[1]}, ${current[0]}`)
-    currentIconEl.attr("style", `background-image: url(http://openweathermap.org/img/wn/${current[5]}.png)`);
+    // currentIconEl.attr("style", `background-image: url(http://openweathermap.org/img/wn/${current[5]}.png)`);
+    currentIconEl.attr("src", `http://openweathermap.org/img/wn/${current[5]}.png`);
     currentDescriptionEl.text(current[6]);
     currentHumidityEl.text(`Humidity: ${current[2]} %`);
     currentTempEl.text(`Temperature: ${current[3]} \u00B0F`);
@@ -260,10 +266,10 @@ function displayForecast(current,forecast){
     //icon update
     var icons = [];
     for (i=0;i<5;i++){
-        icons.push($(`#d${i+1}-header`));
+        icons.push($(`#d${i+1}-icon`));
     }
     for (i=0; i<5;i++){
-        icons[i].attr("style", `background-image: url(http://openweathermap.org/img/wn/${forecast[i][4]}.png)`);
+        icons[i].attr("src", `http://openweathermap.org/img/wn/${forecast[i][4]}.png`);
     }
     //description update
     var desc = []
@@ -318,28 +324,6 @@ function parseDate(date) {
     var day = dateArr[2];
     return response = [dayWeek,month,day];
 }
-
-// // locationUrl = `http://api.openweathermap.org/geo/1.0/direct?q=${cityName}&limit=${limit}&appid=${apiKey}`
-// // weatherUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}`
-
-// // fetch(weatherUrl)
-// // .then(function(response){
-// //     return response.json()
-// // })
-// // .then(function (data){
-// //     console.log(data)
-// // })
-
-
-
-// // fetch(locationUrl)
-// // .then(function(response){
-// //     return response.json()
-// // })
-// // .then(function (data){
-// //     console.log(data)
-// // })
-
 
 function log(mesg){
     console.log(mesg)
