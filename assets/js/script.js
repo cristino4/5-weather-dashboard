@@ -146,7 +146,7 @@ function parseLocations(loc){
 
 async function pollLocations(term){
     log(`Searching for ${term}`)
-    url = `http://api.openweathermap.org/geo/1.0/direct?q=${term}&limit=5&appid=${apiKey}`
+    url = `https://api.openweathermap.org/geo/1.0/direct?q=${term}&limit=5&appid=${apiKey}`
     const response = await fetch(url)
     res = response.json();
     log(`Results:`)
@@ -256,7 +256,7 @@ function displayForecast(current,forecast){
     // currentCityEl.text(`${current[1]}, ${current[7]}, ${current[0]}`)
     currentCityEl.text(`${current[1]}, ${current[0]}`)
     // currentIconEl.attr("style", `background-image: url(http://openweathermap.org/img/wn/${current[5]}.png)`);
-    currentIconEl.attr("src", `http://openweathermap.org/img/wn/${current[5]}.png`);
+    currentIconEl.attr("src", `https://openweathermap.org/img/wn/${current[5]}.png`);
     currentDescriptionEl.text(current[6]);
     currentHumidityEl.text(`Humidity: ${current[2]} %`);
     currentTempEl.text(`Temperature: ${current[3]} \u00B0F`);
@@ -269,7 +269,7 @@ function displayForecast(current,forecast){
         icons.push($(`#d${i+1}-icon`));
     }
     for (i=0; i<5;i++){
-        icons[i].attr("src", `http://openweathermap.org/img/wn/${forecast[i][4]}.png`);
+        icons[i].attr("src", `https://openweathermap.org/img/wn/${forecast[i][4]}.png`);
     }
     //description update
     var desc = []
