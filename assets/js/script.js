@@ -30,7 +30,8 @@ $("#search-history").change(function(event){
     lon = el.data("longitude")
     coor = [lat,lon]
     searchText = `${el.data("name")}, ${el.data("state")}, ${el.data("country")}`
-    $("#search-bar")[0].value = searchText;
+
+    // $("#search-bar")[0].value = searchText;
     init()
 })
 
@@ -93,6 +94,8 @@ async function search(event){
 async function applySelection(event){
     log("EVENT: ")
     log(event)
+    $("#search-results button").remove();
+    $("#search-results p").remove();
     lat = event.target.attributes.getNamedItem("data-lattitude").value;
     lon = event.target.attributes.getNamedItem("data-longitude").value;
     var city = event.target.attributes.getNamedItem("data-name").value;
@@ -284,7 +287,7 @@ function displayForecast(current,forecast){
         desc.push($(`#d${i+1}-temp`));
     }
     for (i=0; i<5;i++){
-        desc[i].text(`${forecast[i][1]} \u00B0F`);
+        desc[i].text(` Temperature: ${forecast[i][1]} \u00B0F`);
     }
     //wind update
     var desc = []
@@ -292,7 +295,7 @@ function displayForecast(current,forecast){
         desc.push($(`#d${i+1}-wind`));
     }
     for (i=0; i<5;i++){
-        desc[i].text(`${forecast[i][2]} mph`);
+        desc[i].text(`Wind: ${forecast[i][2]} mph`);
     }
     //humidity update
     var desc = []
@@ -300,7 +303,7 @@ function displayForecast(current,forecast){
         desc.push($(`#d${i+1}-humid`));
     }
     for (i=0; i<5;i++){
-        desc[i].text(`${forecast[i][3]} %`);
+        desc[i].text(`Humidity: ${forecast[i][3]} %`);
     }
     //dateupdate
     var desc = []
