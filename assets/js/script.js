@@ -1,10 +1,11 @@
 var apiKey = "c94957d800c39e4cc9b3130db089253a";
-var lat = "34.4856";
-var lon = "-117.3528";
+var lat = "";
+var lon = "";
+// var lat = "34.396622";
+// var lon = "-117.275002";
 var cityName = "london";
 var limit = 10;
 var currentWeather;
-var coor = [lat,lon]
 var fiveDayForecast;
 
 currentCityEl = $("#current-city");
@@ -28,26 +29,65 @@ $("#search-history").change(function(event){
     log(el)
     lat = el.data("lattitude")
     lon = el.data("longitude")
-    coor = [lat,lon]
     searchText = `${el.data("name")}, ${el.data("state")}, ${el.data("country")}`
-
-    // $("#search-bar")[0].value = searchText;
-    init()
+    pageUpdate(lat,lon)
 })
 
-init()
+getCurrentLocation()
 
-async function init(){
+async function init(pos){
+    const crd = pos.coords;
+    lat = crd.latitude;
+    lon = crd.longitude;
+    console.log("Your current position is:");
+    console.log(`Latitude : ${crd.latitude}`);
+    console.log(`Longitude: ${crd.longitude}`);
+    console.log(`More or less ${crd.accuracy} meters.`);
+    pageUpdate(lat,lon)
+}
+
+async function pageUpdate(lat,lon){
 
     //location coordinates are stored as global var
-    weatherData = await pollWeather(coor)
-    forecastData = await pollForecast(coor)
+    log(`Location check lat ${lat} lon ${lon}`)
+    weatherData = await pollWeather(lat,lon)
+    log(`Location check lat ${lat} lon ${lon}`)
+    forecastData = await pollForecast(lat,lon)
     fiveDayForecast = parseForecast(forecastData)
     currentWeather = parseCurrentWeather(weatherData)
     displayForecast(currentWeather,fiveDayForecast)
     updateSearchHistory()
 
 }
+
+function getCurrentLocation() {
+        navigator.geolocation.getCurrentPosition(init);
+  }
+
+async function getAddress() {
+  // notice, no then(), cause await would block and 
+  // wait for the resolved result
+  const position = await this.getCoordinates(); 
+  let latitude = position.coords.latitude;
+  let longitude = position.coords.longitude;
+  x = [latitude,longitude]
+
+  // Actually return a value
+  return x 
+}
+
+
+//***************************************** */
+
+
+
+  
+//********************************************** */
+
+
+
+
+
 
 //displays seach history on drop down menu
 function updateSearchHistory(){
@@ -101,7 +141,6 @@ async function applySelection(event){
     var city = event.target.attributes.getNamedItem("data-name").value;
     var state = event.target.attributes.getNamedItem("data-state").value;
     var country = event.target.attributes.getNamedItem("data-country").value;
-    coor = [lat,lon]
 
     if(localStorage.getItem("searchHistory") != null){
         const storageEntry = new Object()
@@ -128,7 +167,7 @@ async function applySelection(event){
     }
 
 
-    init()
+    pageUpdate(lat,lon)
     
 }
 
@@ -136,14 +175,14 @@ function parseLocations(loc){
     var cities = [];
     var states = [];
     var countries = [];
-    var coor = [];
+    var coors = [];
     for (let i=0;i<loc.length;i++){
         cities.push(loc[i].name)
         states.push(loc[i].state)
         countries.push(loc[i].country)
-        coor.push([loc[i].lat,loc[i].lon])
+        coors.push([loc[i].lat,loc[i].lon])
     }
-    return [cities,states,countries,coor]
+    return [cities,states,countries,coors]
 }
 
 async function pollLocations(term){
@@ -197,9 +236,9 @@ function locationError(){
 }
 
 
-async function pollWeather(coor){
-    log(`Obtaining weather data for lattitude: ${coor[0]} longitude: ${coor[1]}`)
-    weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${coor[0]}&lon=${coor[1]}&appid=${apiKey}&units=imperial`
+async function pollWeather(lat,lon){
+    log(`Obtaining weather data for latitude: ${lat} longitude: ${lon}`)
+    weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=imperial`
     const response = await fetch(weatherUrl)
     res = response.json()
     log("Data:")
@@ -208,9 +247,9 @@ async function pollWeather(coor){
 
 }
 
-async function pollForecast(coor){
-    log(`Obtaining forecast data for lattitude: ${coor[0]} longitude: ${coor[1]}`)
-    weatherUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${coor[0]}&lon=${coor[1]}&appid=${apiKey}&units=imperial&exclude=hourly,daily`
+async function pollForecast(lat,lon){
+    log(`Obtaining forecast data for lattitude: ${lat} longitude: ${lon}`)
+    weatherUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=imperial&exclude=hourly,daily`
     const response = await fetch(weatherUrl)
     res = response.json()
     log("Data:")
